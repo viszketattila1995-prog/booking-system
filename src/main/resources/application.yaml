@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: booking-system
+  datasource:
+    url: jdbc:postgresql://localhost:5432/booking_system
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    # Open Session In View kikapcsolva: enélkül a lazy entitások csak a service réteg
+    # tranzakcióján belül érhetők el, tehát a controller/view réteg nem tud "véletlenül"
+    # újabb lekérdezéseket indítani a security-ellenőrzésen (pl. ownership check) kívül.
+    open-in-view: false
+
+app:
+  jwt:
+    secret: ${JWT_SECRET}
+    access-token-expiration-ms: 900000       # 15 perc - rövid élettartam, mert nem revoke-olható egyszerűen
+    refresh-token-expiration-ms: 2592000000  # 30 nap - ez DB-ben tárolt, revoke-olható
