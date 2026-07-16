@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import jakarta.persistence.LockModeType;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface TimeSlotRepository extends JpaRepository<TimeSlot, UUID> {
@@ -48,4 +49,16 @@ public interface TimeSlotRepository extends JpaRepository<TimeSlot, UUID> {
             @Param("startTime") Instant startTime,
             @Param("endTime") Instant endTime
     );
+
+    /**
+     * Foglaláskor EZT kell használni sima findById helyett: itt VAN egy létező
+     * sor (maga a time_slot), amit a tranzakció végéig zárolunk, mielőtt
+     * ellenőriznénk/módosítanánk a status-t. Ez - a fenti findOverlappingForProvider-rel
+     * ellentétben - tényleg kizárja a race condition-t, mert két egyidejű foglalási
+     * kérés nem futhat át egyszerre ugyanazon a soron: a második a COMMIT-ig blokkol,
+     * és utána már BOOKED státuszt lát.
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT ts FROM TimeSlot ts WHERE ts.id = :id")
+    Optional<TimeSlot> findByIdForUpdate(@Param("id") UUID id);
 }

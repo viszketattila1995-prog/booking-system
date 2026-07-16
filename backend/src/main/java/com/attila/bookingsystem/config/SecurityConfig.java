@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -21,7 +22,11 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.List;
 
+// @EnableMethodSecurity: ez teszi lehetővé a @PreAuthorize-t service/controller
+// metódusokon (pl. hasRole('ADMIN')) - ez lesz a method-level security alapja,
+// amit a következő lépésben (ownership-check) tovább bővítünk.
 @Configuration
+@EnableMethodSecurity
 public class SecurityConfig {
 
     private final AppUserDetailsService appUserDetailsService;

@@ -4,6 +4,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -40,10 +41,11 @@ public class GlobalExceptionHandler {
                 "Validation failed", fieldErrors, request.getRequestURI());
     }
 
-    @ExceptionHandler(EmailAlreadyInUseException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)
-    public ApiError handleEmailAlreadyInUse(EmailAlreadyInUseException ex, HttpServletRequest request) {
-        return new ApiError(Instant.now(), HttpStatus.CONFLICT.value(), "Conflict", ex.getMessage(), request.getRequestURI());
+    @ExceptionHandler(ApiException.class)
+    public ResponseEntity<ApiError> handleApiException(ApiException ex, HttpServletRequest request) {
+        ApiError body = new ApiError(Instant.now(), ex.getStatus().value(), ex.getStatus().getReasonPhrase(),
+                ex.getMessage(), request.getRequestURI());
+        return ResponseEntity.status(ex.getStatus()).body(body);
     }
 
     @ExceptionHandler(BadCredentialsException.class)

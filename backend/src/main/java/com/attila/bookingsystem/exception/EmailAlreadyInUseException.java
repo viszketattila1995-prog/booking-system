@@ -1,8 +1,10 @@
 package com.attila.bookingsystem.exception;
 
-public class EmailAlreadyInUseException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+
+public class EmailAlreadyInUseException extends ApiException {
 
     public EmailAlreadyInUseException(String email) {
-        super("Email already in use: " + email);
+        super(HttpStatus.CONFLICT, "Email already in use: " + email);
     }
 }
