@@ -1,0 +1,42 @@
+<div class="page">
+  <h1>Pending Provider Applications</h1>
+
+  @if (errorMessage(); as error) {
+    <div class="alert alert--error">{{ error }}</div>
+  }
+
+  @if (loading()) {
+    <p class="muted">Loading applications…</p>
+  } @else if (providers().length === 0) {
+    <div class="empty-state">No pending applications.</div>
+  } @else {
+    <ul class="application-list">
+      @for (provider of providers(); track provider.id) {
+        <li class="card application-item">
+          <div>
+            <h3>{{ provider.organizationName }}</h3>
+            <p class="muted">Applied {{ provider.appliedAt | date: 'medium' }}</p>
+          </div>
+          <div class="button-row">
+            <button
+              type="button"
+              class="btn"
+              [disabled]="decidingId() === provider.id"
+              (click)="approve(provider)"
+            >
+              Approve
+            </button>
+            <button
+              type="button"
+              class="btn btn--danger"
+              [disabled]="decidingId() === provider.id"
+              (click)="reject(provider)"
+            >
+              Reject
+            </button>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</div>

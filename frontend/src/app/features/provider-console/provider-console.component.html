@@ -1,0 +1,60 @@
+<div class="page page--narrow">
+  <h1>Become a Provider</h1>
+
+  @if (loading()) {
+    <p class="muted">Loading…</p>
+  } @else if (loadError(); as error) {
+    <div class="alert alert--error">{{ error }}</div>
+  } @else if (provider(); as provider) {
+    <div class="card status-card">
+      <h3>{{ provider.organizationName }}</h3>
+
+      @switch (provider.status) {
+        @case ('PENDING') {
+          <span class="badge badge--booked">Pending review</span>
+          <p class="muted">Your application is awaiting admin approval.</p>
+        }
+        @case ('APPROVED') {
+          <span class="badge badge--available">Approved</span>
+          <p class="muted">You can now manage your services and time slots.</p>
+          <a class="btn" routerLink="/provider/services">Manage my services</a>
+        }
+        @case ('REJECTED') {
+          <span class="badge badge--cancelled">Rejected</span>
+          <p class="muted">Your application was not approved.</p>
+        }
+        @case ('SUSPENDED') {
+          <span class="badge badge--cancelled">Suspended</span>
+          <p class="muted">Your provider account has been suspended.</p>
+        }
+      }
+    </div>
+  } @else {
+    <div class="card">
+      <p class="muted">Apply to offer your services on the platform. An admin will review your application.</p>
+
+      @if (submitError(); as error) {
+        <div class="alert alert--error">{{ error }}</div>
+      }
+
+      <form class="form" [formGroup]="form" (ngSubmit)="submit()">
+        <div class="form-field">
+          <label for="organizationName">Organization name</label>
+          <input id="organizationName" type="text" formControlName="organizationName" />
+          @if (form.controls.organizationName.invalid && form.controls.organizationName.touched) {
+            <span class="field-error">Organization name is required.</span>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="organizationDescription">Description (optional)</label>
+          <input id="organizationDescription" type="text" formControlName="organizationDescription" />
+        </div>
+
+        <button type="submit" class="btn" [disabled]="submitting()">
+          {{ submitting() ? 'Submitting…' : 'Apply' }}
+        </button>
+      </form>
+    </div>
+  }
+</div>

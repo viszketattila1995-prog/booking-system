@@ -7,3 +7,8 @@ export interface TimeSlotResponse {
   endTime: string;
   status: TimeSlotStatus;
 }
+
+export interface CreateTimeSlotRequest {
+  startTime: string;
+  endTime: string;
+}

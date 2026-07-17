@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { roleGuard } from './core/guards/role.guard';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', redirectTo: 'providers' },
@@ -28,6 +29,26 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/bookings/my-bookings/my-bookings.component').then((m) => m.MyBookingsComponent),
     canActivate: [authGuard],
+  },
+  {
+    path: 'provider',
+    loadComponent: () =>
+      import('./features/provider-console/provider-console.component').then((m) => m.ProviderConsoleComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'provider/services',
+    loadComponent: () =>
+      import('./features/provider-console/service-offerings/service-offerings.component').then(
+        (m) => m.ServiceOfferingsComponent,
+      ),
+    canActivate: [roleGuard('ROLE_PROVIDER')],
+  },
+  {
+    path: 'admin/providers',
+    loadComponent: () =>
+      import('./features/admin/admin-providers.component').then((m) => m.AdminProvidersComponent),
+    canActivate: [roleGuard('ROLE_ADMIN')],
   },
   { path: '**', redirectTo: 'providers' },
 ];

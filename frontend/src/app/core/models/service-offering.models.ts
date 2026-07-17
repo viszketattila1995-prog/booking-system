@@ -7,3 +7,18 @@ export interface ServiceOfferingResponse {
   price: number;
   active: boolean;
 }
+
+export interface CreateServiceOfferingRequest {
+  name: string;
+  description?: string;
+  durationMinutes: number;
+  price: number;
+}
+
+export interface UpdateServiceOfferingRequest {
+  name: string;
+  description?: string;
+  durationMinutes: number;
+  price: number;
+  active: boolean;
+}

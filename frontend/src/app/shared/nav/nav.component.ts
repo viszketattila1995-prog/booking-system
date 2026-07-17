@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
 
@@ -14,6 +14,8 @@ export class NavComponent {
 
   readonly isAuthenticated = this.authService.isAuthenticated;
   readonly currentUser = this.authService.currentUser;
+  readonly isProvider = computed(() => this.authService.hasRole('ROLE_PROVIDER'));
+  readonly isAdmin = computed(() => this.authService.hasRole('ROLE_ADMIN'));
 
   logout(): void {
     this.authService.logout();

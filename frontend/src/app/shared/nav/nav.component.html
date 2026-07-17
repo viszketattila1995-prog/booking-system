@@ -5,6 +5,14 @@
     @if (isAuthenticated()) {
       <a routerLink="/providers" routerLinkActive="is-active">Providers</a>
       <a routerLink="/bookings" routerLinkActive="is-active">My Bookings</a>
+      @if (isProvider()) {
+        <a routerLink="/provider/services" routerLinkActive="is-active">My Services</a>
+      } @else {
+        <a routerLink="/provider" routerLinkActive="is-active">Become a Provider</a>
+      }
+      @if (isAdmin()) {
+        <a routerLink="/admin/providers" routerLinkActive="is-active">Admin</a>
+      }
       <span class="nav__user">{{ currentUser()?.fullName }}</span>
       <button type="button" class="btn btn--ghost" (click)="logout()">Log out</button>
     } @else {

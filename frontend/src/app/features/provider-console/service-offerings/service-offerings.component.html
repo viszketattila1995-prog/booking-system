@@ -1,0 +1,167 @@
+<div class="page">
+  <a routerLink="/provider" class="back-link">&larr; Back to provider status</a>
+
+  <div class="header-row">
+    <h1>My Services</h1>
+    <button type="button" class="btn" (click)="toggleCreateForm()">
+      {{ showCreateForm() ? 'Cancel' : 'New service' }}
+    </button>
+  </div>
+
+  @if (showCreateForm()) {
+    <div class="card">
+      @if (createError(); as error) {
+        <div class="alert alert--error">{{ error }}</div>
+      }
+      <form class="form form--wide" [formGroup]="createForm" (ngSubmit)="submitCreate()">
+        <div class="form-field">
+          <label for="name">Name</label>
+          <input id="name" type="text" formControlName="name" />
+        </div>
+        <div class="form-field">
+          <label for="description">Description</label>
+          <input id="description" type="text" formControlName="description" />
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label for="durationMinutes">Duration (minutes)</label>
+            <input id="durationMinutes" type="number" min="1" formControlName="durationMinutes" />
+          </div>
+          <div class="form-field">
+            <label for="price">Price</label>
+            <input id="price" type="number" min="0" step="0.01" formControlName="price" />
+          </div>
+        </div>
+        <button type="submit" class="btn" [disabled]="creating()">
+          {{ creating() ? 'Creating…' : 'Create service' }}
+        </button>
+      </form>
+    </div>
+  }
+
+  @if (loading()) {
+    <p class="muted">Loading services…</p>
+  } @else if (loadError(); as error) {
+    <div class="alert alert--error">{{ error }}</div>
+  } @else if (offerings().length === 0) {
+    <div class="empty-state">You have no services yet. Create one to get started.</div>
+  } @else {
+    <div class="offering-list">
+      @for (offering of offerings(); track offering.id) {
+        <div class="card offering-card">
+          @if (editingId() === offering.id) {
+            @if (editError(); as error) {
+              <div class="alert alert--error">{{ error }}</div>
+            }
+            <form class="form form--wide" [formGroup]="editForm" (ngSubmit)="submitEdit(offering.id)">
+              <div class="form-field">
+                <label>Name</label>
+                <input type="text" formControlName="name" />
+              </div>
+              <div class="form-field">
+                <label>Description</label>
+                <input type="text" formControlName="description" />
+              </div>
+              <div class="form-row">
+                <div class="form-field">
+                  <label>Duration (minutes)</label>
+                  <input type="number" min="1" formControlName="durationMinutes" />
+                </div>
+                <div class="form-field">
+                  <label>Price</label>
+                  <input type="number" min="0" step="0.01" formControlName="price" />
+                </div>
+              </div>
+              <label class="checkbox-field">
+                <input type="checkbox" formControlName="active" />
+                Active (visible to guests)
+              </label>
+              <div class="button-row">
+                <button type="submit" class="btn" [disabled]="savingEditId() === offering.id">
+                  {{ savingEditId() === offering.id ? 'Saving…' : 'Save' }}
+                </button>
+                <button type="button" class="btn btn--ghost" (click)="cancelEdit()">Cancel</button>
+              </div>
+            </form>
+          } @else {
+            <div class="offering-summary">
+              <div>
+                <h3>
+                  {{ offering.name }}
+                  @if (!offering.active) {
+                    <span class="badge badge--cancelled">Inactive</span>
+                  }
+                </h3>
+                @if (offering.description) {
+                  <p class="muted">{{ offering.description }}</p>
+                }
+                <p class="muted">{{ offering.durationMinutes }} min &middot; {{ offering.price | number: '1.2-2' }}</p>
+              </div>
+              <div class="button-row">
+                <button type="button" class="btn btn--ghost" (click)="selectOffering(offering.id)">
+                  {{ selectedOfferingId() === offering.id ? 'Hide time slots' : 'Time slots' }}
+                </button>
+                <button type="button" class="btn btn--ghost" (click)="startEdit(offering)">Edit</button>
+                <button
+                  type="button"
+                  class="btn btn--danger"
+                  [disabled]="deletingId() === offering.id"
+                  (click)="deleteOffering(offering)"
+                >
+                  {{ deletingId() === offering.id ? 'Deleting…' : 'Delete' }}
+                </button>
+              </div>
+            </div>
+          }
+
+          @if (selectedOfferingId() === offering.id) {
+            <div class="slots">
+              @if (slotsError(); as error) {
+                <div class="alert alert--error">{{ error }}</div>
+              }
+
+              <form class="form-row form-row--inline" [formGroup]="slotForm" (ngSubmit)="submitCreateSlot(offering.id)">
+                <div class="form-field">
+                  <label>Start</label>
+                  <input type="datetime-local" formControlName="startTime" />
+                </div>
+                <div class="form-field">
+                  <label>End</label>
+                  <input type="datetime-local" formControlName="endTime" />
+                </div>
+                <button type="submit" class="btn" [disabled]="creatingSlot()">
+                  {{ creatingSlot() ? 'Adding…' : 'Add time slot' }}
+                </button>
+              </form>
+
+              @if (loadingSlots()) {
+                <p class="muted">Loading time slots…</p>
+              } @else if (timeSlots().length === 0) {
+                <p class="muted">No time slots yet.</p>
+              } @else {
+                <ul class="slot-list">
+                  @for (slot of timeSlots(); track slot.id) {
+                    <li class="slot-item">
+                      <span>{{ slot.startTime | date: 'medium' }} &ndash; {{ slot.endTime | date: 'shortTime' }}</span>
+                      <span class="badge" [class]="'badge--' + slot.status.toLowerCase()">{{ slot.status }}</span>
+                      @if (slot.status === 'AVAILABLE') {
+                        <button
+                          type="button"
+                          class="btn btn--danger"
+                          [disabled]="cancellingSlotId() === slot.id"
+                          (click)="cancelSlot(slot)"
+                        >
+                          {{ cancellingSlotId() === slot.id ? 'Cancelling…' : 'Cancel' }}
+                        </button>
+                      }
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
