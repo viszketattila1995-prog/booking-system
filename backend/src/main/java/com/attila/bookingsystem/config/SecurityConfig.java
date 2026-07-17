@@ -3,6 +3,7 @@ package com.attila.bookingsystem.config;
 import com.attila.bookingsystem.security.AppUserDetailsService;
 import com.attila.bookingsystem.security.JwtAuthenticationFilter;
 import com.attila.bookingsystem.security.JwtService;
+import com.attila.bookingsystem.security.LoginRateLimitFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -78,9 +79,17 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(new JwtAuthenticationFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JwtAuthenticationFilter(jwtService), UsernamePasswordAuthenticationFilter.class)
+                // A rate limiternek a JWT-feldolgozás ELŐTT kell lefutnia, hogy egy
+                // login-brute-force ne pazarolja a JWT parse-olás/DB-hívások költségét is.
+                .addFilterBefore(loginRateLimitFilter(), JwtAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public LoginRateLimitFilter loginRateLimitFilter() {
+        return new LoginRateLimitFilter();
     }
 
     @Bean
