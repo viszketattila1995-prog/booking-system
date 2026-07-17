@@ -32,6 +32,13 @@ public class ProviderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(providerService.apply(request));
     }
 
+    // Publikus böngészés (jóváhagyott providerek listája) - bejelentkezett usernek
+    // elérhető, lásd ServiceOfferingController.listActiveForProvider komment.
+    @GetMapping("/api/providers")
+    public List<ProviderResponse> listApproved() {
+        return providerService.listApproved();
+    }
+
     @GetMapping("/api/admin/providers/pending")
     @PreAuthorize("hasRole('ADMIN')")
     public List<ProviderResponse> listPending() {

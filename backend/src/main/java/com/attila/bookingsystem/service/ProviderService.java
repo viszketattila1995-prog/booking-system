@@ -68,6 +68,15 @@ public class ProviderService {
                 .toList();
     }
 
+    // Publikus böngészéshez (guest a foglalás előtt providert választ) - csak
+    // APPROVED állapotú providerek, PENDING/REJECTED/SUSPENDED nem jelenik meg itt.
+    @Transactional(readOnly = true)
+    public List<ProviderResponse> listApproved() {
+        return providerRepository.findByStatus(ProviderStatus.APPROVED).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     @Transactional
     public ProviderResponse approve(UUID providerId) {
         AppUser admin = currentUserProvider.getCurrentUser();
