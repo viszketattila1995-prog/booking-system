@@ -17,9 +17,9 @@
             <span class="badge" [class]="'badge--' + (booking.status === 'CONFIRMED' ? 'available' : 'cancelled')">
               {{ booking.status }}
             </span>
-            <p class="muted">Booked {{ booking.bookedAt | date: 'medium' }}</p>
+            <p class="muted">Booked {{ booking.bookedAt | date: 'MMM d, y, h:mm a' }}</p>
             @if (booking.cancelledAt) {
-              <p class="muted">Cancelled {{ booking.cancelledAt | date: 'medium' }}</p>
+              <p class="muted">Cancelled {{ booking.cancelledAt | date: 'MMM d, y, h:mm a' }}</p>
             }
           </div>
 

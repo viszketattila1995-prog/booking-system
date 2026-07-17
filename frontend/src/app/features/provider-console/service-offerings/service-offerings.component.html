@@ -142,7 +142,7 @@
                 <ul class="slot-list">
                   @for (slot of timeSlots(); track slot.id) {
                     <li class="slot-item">
-                      <span>{{ slot.startTime | date: 'medium' }} &ndash; {{ slot.endTime | date: 'shortTime' }}</span>
+                      <span>{{ slot.startTime | date: 'MMM d, y, h:mm a' }} &ndash; {{ slot.endTime | date: 'shortTime' }}</span>
                       <span class="badge" [class]="'badge--' + slot.status.toLowerCase()">{{ slot.status }}</span>
                       @if (slot.status === 'AVAILABLE') {
                         <button
