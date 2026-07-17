@@ -1,6 +1,7 @@
 package com.attila.bookingsystem.config;
 
 import com.attila.bookingsystem.security.AppUserDetailsService;
+import com.attila.bookingsystem.security.AssistantRateLimitFilter;
 import com.attila.bookingsystem.security.JwtAuthenticationFilter;
 import com.attila.bookingsystem.security.JwtService;
 import com.attila.bookingsystem.security.LoginRateLimitFilter;
@@ -80,9 +81,12 @@ public class SecurityConfig {
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(new JwtAuthenticationFilter(jwtService), UsernamePasswordAuthenticationFilter.class)
-                // A rate limiternek a JWT-feldolgozás ELŐTT kell lefutnia, hogy egy
-                // login-brute-force ne pazarolja a JWT parse-olás/DB-hívások költségét is.
-                .addFilterBefore(loginRateLimitFilter(), JwtAuthenticationFilter.class);
+                // A rate limitereknek a JWT-feldolgozás ELŐTT kell lefutniuk, hogy egy
+                // login-brute-force (vagy egy tulterhelt AI asszisztens-hívás, ami
+                // fizetős külső API-t indítana) ne pazarolja a JWT parse-olás/DB-hívások
+                // költségét is.
+                .addFilterBefore(loginRateLimitFilter(), JwtAuthenticationFilter.class)
+                .addFilterBefore(assistantRateLimitFilter(), JwtAuthenticationFilter.class);
 
         return http.build();
     }
@@ -90,6 +94,11 @@ public class SecurityConfig {
     @Bean
     public LoginRateLimitFilter loginRateLimitFilter() {
         return new LoginRateLimitFilter();
+    }
+
+    @Bean
+    public AssistantRateLimitFilter assistantRateLimitFilter() {
+        return new AssistantRateLimitFilter();
     }
 
     @Bean

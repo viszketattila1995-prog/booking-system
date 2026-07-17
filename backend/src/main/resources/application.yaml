@@ -19,3 +19,7 @@ app:
     secret: ${JWT_SECRET}
     access-token-expiration-ms: 900000       # 15 perc - rövid élettartam, mert nem revoke-olható egyszerűen
     refresh-token-expiration-ms: 2592000000  # 30 nap - ez DB-ben tárolt, revoke-olható
+  assistant:
+    # Nincs alapértelmezett - üresen hagyva az AssistantService "nincs beállítva"
+    # ágát futtatja, nem hasal el induláskor (a többi funkció ettől függetlenül működjön).
+    api-key: ${ANTHROPIC_API_KEY:}
