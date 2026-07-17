@@ -9,12 +9,21 @@
 
 .booking-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.booking-item h3 {
+  margin: 0.5rem 0 0;
 }
 
 .booking-item p {
-  margin: 0.3rem 0 0;
+  margin: 0.2rem 0 0;
   font-size: 0.85rem;
+}
+
+.booking-item .button-row {
+  flex-shrink: 0;
 }

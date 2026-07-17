@@ -99,13 +99,18 @@ public class BookingService {
     }
 
     private BookingResponse toResponse(Booking booking) {
+        TimeSlot timeSlot = booking.getTimeSlot();
         return new BookingResponse(
                 booking.getId(),
-                booking.getTimeSlot().getId(),
+                timeSlot.getId(),
                 booking.getGuest().getId(),
                 booking.getStatus(),
                 booking.getBookedAt(),
-                booking.getCancelledAt()
+                booking.getCancelledAt(),
+                timeSlot.getStartTime(),
+                timeSlot.getEndTime(),
+                timeSlot.getServiceOffering().getName(),
+                timeSlot.getServiceOffering().getProvider().getOrganization().getName()
         );
     }
 }

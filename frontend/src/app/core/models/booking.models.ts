@@ -7,4 +7,8 @@ export interface BookingResponse {
   status: BookingStatus;
   bookedAt: string;
   cancelledAt: string | null;
+  startTime: string;
+  endTime: string;
+  serviceOfferingName: string;
+  organizationName: string;
 }

@@ -17,22 +17,28 @@
             <span class="badge" [class]="'badge--' + (booking.status === 'CONFIRMED' ? 'available' : 'cancelled')">
               {{ booking.status }}
             </span>
-            <p class="muted">Booked {{ booking.bookedAt | date: 'MMM d, y, h:mm a' }}</p>
+            <h3>{{ booking.serviceOfferingName }}</h3>
+            <p class="muted">{{ booking.organizationName }}</p>
+            <p class="muted">{{ booking.startTime | date: 'MMM d, y, h:mm a' }} – {{ booking.endTime | date: 'shortTime' }}</p>
             @if (booking.cancelledAt) {
               <p class="muted">Cancelled {{ booking.cancelledAt | date: 'MMM d, y, h:mm a' }}</p>
             }
           </div>
 
-          @if (booking.status === 'CONFIRMED') {
-            <button
-              type="button"
-              class="btn btn--danger"
-              [disabled]="cancellingId() === booking.id"
-              (click)="cancel(booking)"
-            >
-              {{ cancellingId() === booking.id ? 'Cancelling…' : 'Cancel' }}
-            </button>
-          }
+          <div class="button-row">
+            @if (booking.status === 'CONFIRMED') {
+              <button type="button" class="btn btn--ghost" (click)="addToGoogleCalendar(booking)">Google Calendar</button>
+              <button type="button" class="btn btn--ghost" (click)="downloadCalendarFile(booking)">.ics</button>
+              <button
+                type="button"
+                class="btn btn--danger"
+                [disabled]="cancellingId() === booking.id"
+                (click)="cancel(booking)"
+              >
+                {{ cancellingId() === booking.id ? 'Cancelling…' : 'Cancel' }}
+              </button>
+            }
+          </div>
         </li>
       }
     </ul>

@@ -3,6 +3,7 @@ import { Component, inject, signal } from '@angular/core';
 import { BookingService } from '../../../core/services/booking.service';
 import { BookingResponse } from '../../../core/models/booking.models';
 import { extractErrorMessage } from '../../../core/utils/api-error.util';
+import { buildGoogleCalendarUrl, downloadIcsFile } from '../../../core/utils/calendar.util';
 
 @Component({
   selector: 'app-my-bookings',
@@ -35,6 +36,25 @@ export class MyBookingsComponent {
         this.cancellingId.set(null);
         this.errorMessage.set(extractErrorMessage(error, 'Could not cancel this booking.'));
       },
+    });
+  }
+
+  addToGoogleCalendar(booking: BookingResponse): void {
+    window.open(
+      buildGoogleCalendarUrl({
+        title: `${booking.serviceOfferingName} — ${booking.organizationName}`,
+        startTime: booking.startTime,
+        endTime: booking.endTime,
+      }),
+      '_blank',
+    );
+  }
+
+  downloadCalendarFile(booking: BookingResponse): void {
+    downloadIcsFile({
+      title: `${booking.serviceOfferingName} — ${booking.organizationName}`,
+      startTime: booking.startTime,
+      endTime: booking.endTime,
     });
   }
 

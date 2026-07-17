@@ -11,6 +11,10 @@ public record BookingResponse(
         UUID guestId,
         BookingStatus status,
         Instant bookedAt,
-        Instant cancelledAt
+        Instant cancelledAt,
+        Instant startTime,
+        Instant endTime,
+        String serviceOfferingName,
+        String organizationName
 ) {
 }
