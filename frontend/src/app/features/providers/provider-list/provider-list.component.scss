@@ -1,0 +1,17 @@
+.provider-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
+}
+
+.provider-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  color: var(--color-text);
+}
+
+.provider-card:hover {
+  text-decoration: none;
+  border-color: var(--color-primary);
+}

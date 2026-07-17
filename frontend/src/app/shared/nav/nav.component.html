@@ -1,0 +1,15 @@
+<nav class="nav">
+  <a class="nav__brand" routerLink="/providers">Booking System</a>
+
+  <div class="nav__links">
+    @if (isAuthenticated()) {
+      <a routerLink="/providers" routerLinkActive="is-active">Providers</a>
+      <a routerLink="/bookings" routerLinkActive="is-active">My Bookings</a>
+      <span class="nav__user">{{ currentUser()?.fullName }}</span>
+      <button type="button" class="btn btn--ghost" (click)="logout()">Log out</button>
+    } @else {
+      <a routerLink="/login" routerLinkActive="is-active">Log in</a>
+      <a routerLink="/register" routerLinkActive="is-active">Register</a>
+    }
+  </div>
+</nav>

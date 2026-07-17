@@ -1,0 +1,69 @@
+<div class="page">
+  <a routerLink="/providers" class="back-link">&larr; Back to providers</a>
+  <h1>Services</h1>
+
+  @if (loadingOfferings()) {
+    <p class="muted">Loading services…</p>
+  } @else if (offeringsError(); as error) {
+    <div class="alert alert--error">{{ error }}</div>
+  } @else if (offerings().length === 0) {
+    <div class="empty-state">This provider has no active services yet.</div>
+  } @else {
+    <div class="offering-list">
+      @for (offering of offerings(); track offering.id) {
+        <div class="card offering-card">
+          <button type="button" class="offering-header" (click)="selectOffering(offering.id)">
+            <div>
+              <h3>{{ offering.name }}</h3>
+              @if (offering.description) {
+                <p class="muted">{{ offering.description }}</p>
+              }
+            </div>
+            <div class="offering-meta">
+              <span>{{ offering.durationMinutes }} min</span>
+              <span>{{ offering.price | number: '1.2-2' }}</span>
+            </div>
+          </button>
+
+          @if (selectedOfferingId() === offering.id) {
+            <div class="slots">
+              @if (bookingSuccessMessage(); as success) {
+                <div class="alert alert--success">{{ success }}</div>
+              }
+              @if (bookingError(); as error) {
+                <div class="alert alert--error">{{ error }}</div>
+              }
+
+              @if (loadingSlots()) {
+                <p class="muted">Loading time slots…</p>
+              } @else if (slotsError(); as error) {
+                <div class="alert alert--error">{{ error }}</div>
+              } @else if (timeSlots().length === 0) {
+                <p class="muted">No time slots for this service yet.</p>
+              } @else {
+                <ul class="slot-list">
+                  @for (slot of timeSlots(); track slot.id) {
+                    <li class="slot-item">
+                      <span>{{ slot.startTime | date: 'medium' }} &ndash; {{ slot.endTime | date: 'shortTime' }}</span>
+                      <span class="badge" [class]="'badge--' + slot.status.toLowerCase()">{{ slot.status }}</span>
+                      @if (slot.status === 'AVAILABLE') {
+                        <button
+                          type="button"
+                          class="btn"
+                          [disabled]="bookingInProgressSlotId() === slot.id"
+                          (click)="book(slot)"
+                        >
+                          {{ bookingInProgressSlotId() === slot.id ? 'Booking…' : 'Book' }}
+                        </button>
+                      }
+                    </li>
+                  }
+                </ul>
+              }
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -1,0 +1,20 @@
+<div class="page">
+  <h1>Providers</h1>
+
+  @if (loading()) {
+    <p class="muted">Loading providers…</p>
+  } @else if (errorMessage(); as error) {
+    <div class="alert alert--error">{{ error }}</div>
+  } @else if (providers().length === 0) {
+    <div class="empty-state">No approved providers yet.</div>
+  } @else {
+    <div class="provider-grid">
+      @for (provider of providers(); track provider.id) {
+        <a class="card provider-card" [routerLink]="['/providers', provider.id]">
+          <h3>{{ provider.organizationName }}</h3>
+          <span class="muted">View services &amp; book a time slot</span>
+        </a>
+      }
+    </div>
+  }
+</div>

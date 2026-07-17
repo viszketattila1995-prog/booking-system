@@ -1,0 +1,40 @@
+<div class="page">
+  <h1>My Bookings</h1>
+
+  @if (errorMessage(); as error) {
+    <div class="alert alert--error">{{ error }}</div>
+  }
+
+  @if (loading()) {
+    <p class="muted">Loading your bookings…</p>
+  } @else if (bookings().length === 0) {
+    <div class="empty-state">You have no bookings yet.</div>
+  } @else {
+    <ul class="booking-list">
+      @for (booking of bookings(); track booking.id) {
+        <li class="card booking-item">
+          <div>
+            <span class="badge" [class]="'badge--' + (booking.status === 'CONFIRMED' ? 'available' : 'cancelled')">
+              {{ booking.status }}
+            </span>
+            <p class="muted">Booked {{ booking.bookedAt | date: 'medium' }}</p>
+            @if (booking.cancelledAt) {
+              <p class="muted">Cancelled {{ booking.cancelledAt | date: 'medium' }}</p>
+            }
+          </div>
+
+          @if (booking.status === 'CONFIRMED') {
+            <button
+              type="button"
+              class="btn btn--danger"
+              [disabled]="cancellingId() === booking.id"
+              (click)="cancel(booking)"
+            >
+              {{ cancellingId() === booking.id ? 'Cancelling…' : 'Cancel' }}
+            </button>
+          }
+        </li>
+      }
+    </ul>
+  }
+</div>
