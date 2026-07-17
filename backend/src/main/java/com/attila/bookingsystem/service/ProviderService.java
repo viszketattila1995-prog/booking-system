@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -31,13 +32,16 @@ public class ProviderService {
     private final OrganizationRepository organizationRepository;
     private final AppRoleRepository appRoleRepository;
     private final CurrentUserProvider currentUserProvider;
+    private final AuditService auditService;
 
     public ProviderService(ProviderRepository providerRepository, OrganizationRepository organizationRepository,
-                            AppRoleRepository appRoleRepository, CurrentUserProvider currentUserProvider) {
+                            AppRoleRepository appRoleRepository, CurrentUserProvider currentUserProvider,
+                            AuditService auditService) {
         this.providerRepository = providerRepository;
         this.organizationRepository = organizationRepository;
         this.appRoleRepository = appRoleRepository;
         this.currentUserProvider = currentUserProvider;
+        this.auditService = auditService;
     }
 
     @Transactional
@@ -84,6 +88,9 @@ public class ProviderService {
         roles.add(providerRole);
         providerUser.setRoles(roles);
 
+        auditService.record(admin, "PROVIDER_APPROVED", "Provider", provider.getId(),
+                Map.of("applicantUserId", providerUser.getId()));
+
         return toResponse(provider);
     }
 
@@ -95,6 +102,9 @@ public class ProviderService {
         provider.setStatus(ProviderStatus.REJECTED);
         provider.setDecidedAt(Instant.now());
         provider.setDecidedBy(admin);
+
+        auditService.record(admin, "PROVIDER_REJECTED", "Provider", provider.getId(),
+                Map.of("applicantUserId", provider.getUser().getId()));
 
         return toResponse(provider);
     }

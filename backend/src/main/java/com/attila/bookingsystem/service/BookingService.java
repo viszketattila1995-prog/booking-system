@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -25,12 +26,14 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final TimeSlotRepository timeSlotRepository;
     private final CurrentUserProvider currentUserProvider;
+    private final AuditService auditService;
 
     public BookingService(BookingRepository bookingRepository, TimeSlotRepository timeSlotRepository,
-                           CurrentUserProvider currentUserProvider) {
+                           CurrentUserProvider currentUserProvider, AuditService auditService) {
         this.bookingRepository = bookingRepository;
         this.timeSlotRepository = timeSlotRepository;
         this.currentUserProvider = currentUserProvider;
+        this.auditService = auditService;
     }
 
     @Transactional
@@ -53,6 +56,9 @@ public class BookingService {
 
         Booking booking = new Booking(timeSlot, guest);
         bookingRepository.save(booking);
+
+        auditService.record(guest, "BOOKING_CREATED", "Booking", booking.getId(),
+                Map.of("timeSlotId", timeSlotId));
 
         return toResponse(booking);
     }
@@ -87,6 +93,9 @@ public class BookingService {
         booking.setCancelledAt(Instant.now());
 
         booking.getTimeSlot().setStatus(TimeSlotStatus.AVAILABLE);
+
+        auditService.record(currentUser, "BOOKING_CANCELLED", "Booking", booking.getId(),
+                Map.of("cancelledBy", isGuestOwner ? "GUEST" : "PROVIDER"));
     }
 
     private BookingResponse toResponse(Booking booking) {

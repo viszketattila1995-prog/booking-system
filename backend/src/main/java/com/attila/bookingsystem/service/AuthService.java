@@ -34,11 +34,12 @@ public class AuthService {
     private final JwtProperties jwtProperties;
     private final RefreshTokenService refreshTokenService;
     private final CurrentUserProvider currentUserProvider;
+    private final AuditService auditService;
 
     public AuthService(AppUserRepository appUserRepository, AppRoleRepository appRoleRepository,
                         PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager,
                         JwtService jwtService, JwtProperties jwtProperties, RefreshTokenService refreshTokenService,
-                        CurrentUserProvider currentUserProvider) {
+                        CurrentUserProvider currentUserProvider, AuditService auditService) {
         this.appUserRepository = appUserRepository;
         this.appRoleRepository = appRoleRepository;
         this.passwordEncoder = passwordEncoder;
@@ -47,6 +48,7 @@ public class AuthService {
         this.jwtProperties = jwtProperties;
         this.refreshTokenService = refreshTokenService;
         this.currentUserProvider = currentUserProvider;
+        this.auditService = auditService;
     }
 
     @Transactional
@@ -98,6 +100,7 @@ public class AuthService {
     public void logoutAll() {
         AppUser currentUser = currentUserProvider.getCurrentUser();
         refreshTokenService.revokeAllForUser(currentUser.getId());
+        auditService.record(currentUser, "LOGOUT_ALL", "AppUser", currentUser.getId());
     }
 
     private AuthResponse buildAuthResponse(AppUser user) {

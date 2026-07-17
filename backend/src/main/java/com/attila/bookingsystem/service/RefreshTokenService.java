@@ -35,13 +35,15 @@ public class RefreshTokenService {
 
     private final RefreshTokenRepository refreshTokenRepository;
     private final JwtProperties jwtProperties;
+    private final AuditService auditService;
     private final TransactionTemplate requiresNewTransactionTemplate;
     private final SecureRandom secureRandom = new SecureRandom();
 
     public RefreshTokenService(RefreshTokenRepository refreshTokenRepository, JwtProperties jwtProperties,
-                                PlatformTransactionManager transactionManager) {
+                                AuditService auditService, PlatformTransactionManager transactionManager) {
         this.refreshTokenRepository = refreshTokenRepository;
         this.jwtProperties = jwtProperties;
+        this.auditService = auditService;
         this.requiresNewTransactionTemplate = new TransactionTemplate(transactionManager);
         this.requiresNewTransactionTemplate.setPropagationBehavior(TransactionTemplate.PROPAGATION_REQUIRES_NEW);
     }
@@ -61,11 +63,15 @@ public class RefreshTokenService {
 
         if (current.isRevoked()) {
             // A hívó tranzakciója a lenti throw miatt úgyis rollback-elne - és azzal
-            // MAGÁT a védekező revoke-ot is visszavonná. Ezért ezt egy önálló, azonnal
-            // commit-olt (REQUIRES_NEW) tranzakcióban végezzük, hogy a revoke akkor is
-            // megtörténjen és megmaradjon, ha ez a kérés maga csak egy visszajátszás volt.
-            UUID userId = current.getUser().getId();
-            requiresNewTransactionTemplate.executeWithoutResult(status -> revokeAllForUser(userId));
+            // MAGÁT a védekező revoke-ot (és az audit bejegyzést) is visszavonná. Ezért
+            // ezt egy önálló, azonnal commit-olt (REQUIRES_NEW) tranzakcióban végezzük,
+            // hogy mindkettő megtörténjen és megmaradjon, ha ez a kérés maga csak egy
+            // visszajátszás volt.
+            AppUser affectedUser = current.getUser();
+            requiresNewTransactionTemplate.executeWithoutResult(status -> {
+                revokeAllForUser(affectedUser.getId());
+                auditService.record(affectedUser, "REFRESH_TOKEN_REUSE_DETECTED", "AppUser", affectedUser.getId());
+            });
             throw new InvalidRefreshTokenException("Refresh token reuse detected - all sessions revoked");
         }
 
