@@ -30,12 +30,18 @@
   color: inherit;
 }
 
+.offering-header > div:first-child {
+  min-width: 0;
+}
+
 .offering-header h3 {
   margin: 0;
+  overflow-wrap: anywhere;
 }
 
 .offering-header p {
   margin: 0.2rem 0 0;
+  overflow-wrap: anywhere;
 }
 
 .offering-meta {

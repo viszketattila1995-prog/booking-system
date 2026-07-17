@@ -14,7 +14,10 @@
   gap: 1rem;
 }
 
-.button-row {
-  display: flex;
-  gap: 0.6rem;
+.application-item > div:first-child {
+  min-width: 0;
+}
+
+.application-item h3 {
+  overflow-wrap: anywhere;
 }

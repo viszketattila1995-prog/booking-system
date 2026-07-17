@@ -36,11 +36,6 @@
   font-size: 0.9rem;
 }
 
-.button-row {
-  display: flex;
-  gap: 0.6rem;
-}
-
 .offering-list {
   display: flex;
   flex-direction: column;
@@ -61,10 +56,19 @@
   gap: 1rem;
 }
 
+.offering-summary > div:first-child {
+  min-width: 0;
+}
+
 .offering-summary h3 {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  overflow-wrap: anywhere;
+}
+
+.offering-summary p {
+  overflow-wrap: anywhere;
 }
 
 .slots {

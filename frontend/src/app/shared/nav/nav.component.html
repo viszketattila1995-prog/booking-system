@@ -1,5 +1,8 @@
 <nav class="nav">
-  <a class="nav__brand" routerLink="/providers">Booking System</a>
+  <a class="nav__brand" routerLink="/providers">
+    <span class="nav__brand-mark">B</span>
+    Booking System
+  </a>
 
   <div class="nav__links">
     @if (isAuthenticated()) {
@@ -13,11 +16,14 @@
       @if (isAdmin()) {
         <a routerLink="/admin/providers" routerLinkActive="is-active">Admin</a>
       }
-      <span class="nav__user">{{ currentUser()?.fullName }}</span>
+      <a class="nav__profile" routerLink="/profile" routerLinkActive="is-active" title="My profile">
+        <span class="avatar">{{ initials() }}</span>
+        <span class="nav__user">{{ currentUser()?.fullName }}</span>
+      </a>
       <button type="button" class="btn btn--ghost" (click)="logout()">Log out</button>
     } @else {
       <a routerLink="/login" routerLinkActive="is-active">Log in</a>
-      <a routerLink="/register" routerLinkActive="is-active">Register</a>
+      <a routerLink="/register" class="btn">Register</a>
     }
   </div>
 </nav>

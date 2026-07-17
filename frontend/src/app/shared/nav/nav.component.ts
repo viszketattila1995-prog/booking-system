@@ -17,6 +17,16 @@ export class NavComponent {
   readonly isProvider = computed(() => this.authService.hasRole('ROLE_PROVIDER'));
   readonly isAdmin = computed(() => this.authService.hasRole('ROLE_ADMIN'));
 
+  readonly initials = computed(() => {
+    const name = this.currentUser()?.fullName ?? '';
+    return name
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join('');
+  });
+
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);

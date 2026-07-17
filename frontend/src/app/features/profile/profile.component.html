@@ -1,0 +1,34 @@
+<div class="page page--narrow">
+  <h1>My Profile</h1>
+
+  @if (currentUser(); as user) {
+    <div class="card profile-card">
+      <span class="avatar avatar--lg">{{ initials() }}</span>
+      <div class="profile-info">
+        <h2>{{ user.fullName }}</h2>
+        <p class="muted">{{ user.email }}</p>
+        <div class="role-badges">
+          @for (role of user.roles; track role) {
+            <span class="badge badge--role">{{ formatRole(role) }}</span>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="card session-card">
+      <h3>Session</h3>
+      <p class="muted">Log out of this device only, or end every session across all your devices.</p>
+
+      @if (logoutAllError(); as error) {
+        <div class="alert alert--error">{{ error }}</div>
+      }
+
+      <div class="button-row">
+        <button type="button" class="btn btn--ghost" (click)="logout()">Log out</button>
+        <button type="button" class="btn btn--danger" [disabled]="loggingOutAll()" (click)="logoutAllDevices()">
+          {{ loggingOutAll() ? 'Logging out…' : 'Log out of all devices' }}
+        </button>
+      </div>
+    </div>
+  }
+</div>
