@@ -58,6 +58,11 @@ frontend with its own design system, including dark mode.
   services and time slots
 - Admin console: review and approve/reject provider applications
 - Profile page and session management (log out / log out everywhere)
+- Add booking to calendar (Google Calendar link or `.ics` download)
+- AI booking assistant: a chat widget (Claude Haiku 4.5) that can search
+  time slots, book, list, and cancel bookings on the user's behalf, scoped
+  to that user's own permissions. Works without an API key configured (the
+  rest of the app still runs; the chat endpoint just returns a clear error)
 - Light and dark mode
 - No UI framework — a small, hand-rolled design system (plain CSS/SCSS)
 
@@ -143,6 +148,12 @@ de valódi frontend saját design rendszerrel, sötét móddal együtt.
 - Admin felület: provider-jelentkezések elbírálása (jóváhagyás/elutasítás)
 - Profil oldal és munkamenet-kezelés (kijelentkezés / kijelentkezés
   mindenhonnan)
+- Foglalás hozzáadása a naptárhoz (Google Calendar link vagy `.ics` letöltés)
+- AI foglalási asszisztens: egy chat widget (Claude Haiku 4.5), ami a
+  felhasználó nevében tud időpontot keresni, foglalni, listázni és lemondani
+  - kizárólag az adott felhasználó saját jogosultságain belül. API kulcs
+  nélkül is működik minden más (a chat endpoint ilyenkor egyszerűen egy
+  érthető hibaüzenetet ad)
 - Világos és sötét mód
 - Nincs UI keretrendszer - egy kicsi, kézzel épített design rendszer
   (sima CSS/SCSS)
