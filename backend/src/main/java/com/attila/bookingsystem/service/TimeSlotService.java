@@ -1,6 +1,5 @@
 package com.attila.bookingsystem.service;
 
-import com.attila.bookingsystem.domain.AppUser;
 import com.attila.bookingsystem.domain.ServiceOffering;
 import com.attila.bookingsystem.domain.TimeSlot;
 import com.attila.bookingsystem.domain.enums.TimeSlotStatus;
@@ -12,8 +11,6 @@ import com.attila.bookingsystem.exception.ResourceNotFoundException;
 import com.attila.bookingsystem.exception.TimeSlotConflictException;
 import com.attila.bookingsystem.repository.ServiceOfferingRepository;
 import com.attila.bookingsystem.repository.TimeSlotRepository;
-import com.attila.bookingsystem.security.CurrentUserProvider;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,23 +22,16 @@ public class TimeSlotService {
 
     private final TimeSlotRepository timeSlotRepository;
     private final ServiceOfferingRepository serviceOfferingRepository;
-    private final CurrentUserProvider currentUserProvider;
 
-    public TimeSlotService(TimeSlotRepository timeSlotRepository, ServiceOfferingRepository serviceOfferingRepository,
-                            CurrentUserProvider currentUserProvider) {
+    public TimeSlotService(TimeSlotRepository timeSlotRepository, ServiceOfferingRepository serviceOfferingRepository) {
         this.timeSlotRepository = timeSlotRepository;
         this.serviceOfferingRepository = serviceOfferingRepository;
-        this.currentUserProvider = currentUserProvider;
     }
 
+    // Az ownership-checket a controller végzi @PreAuthorize("@ownership.isServiceOfferingOwner(#serviceOfferingId)")
+    // formában (lásd TimeSlotController) - itt már csak a jogos létrehozás fut le.
     @Transactional
     public TimeSlotResponse create(UUID serviceOfferingId, CreateTimeSlotRequest request) {
-        AppUser currentUser = currentUserProvider.getCurrentUser();
-
-        if (!serviceOfferingRepository.existsByIdAndProvider_UserId(serviceOfferingId, currentUser.getId())) {
-            throw new AccessDeniedException("Not the owner of this service offering");
-        }
-
         if (!request.endTime().isAfter(request.startTime())) {
             throw new BadRequestException("endTime must be after startTime");
         }
@@ -72,14 +62,10 @@ public class TimeSlotService {
                 .toList();
     }
 
+    // Az ownership-checket a controller végzi @PreAuthorize("@ownership.isTimeSlotOwner(#id)")
+    // formában (lásd TimeSlotController) - itt már csak a jogos lemondás fut le.
     @Transactional
     public void cancel(UUID timeSlotId) {
-        AppUser currentUser = currentUserProvider.getCurrentUser();
-
-        if (!timeSlotRepository.existsByIdAndServiceOffering_Provider_UserId(timeSlotId, currentUser.getId())) {
-            throw new AccessDeniedException("Not the owner of this time slot");
-        }
-
         TimeSlot timeSlot = timeSlotRepository.findById(timeSlotId)
                 .orElseThrow(() -> new ResourceNotFoundException("Time slot not found: " + timeSlotId));
 

@@ -9,7 +9,6 @@ import com.attila.bookingsystem.dto.serviceoffering.UpdateServiceOfferingRequest
 import com.attila.bookingsystem.exception.ResourceNotFoundException;
 import com.attila.bookingsystem.repository.ServiceOfferingRepository;
 import com.attila.bookingsystem.security.CurrentUserProvider;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -58,17 +57,10 @@ public class ServiceOfferingService {
                 .toList();
     }
 
+    // Az ownership-checket a controller végzi @PreAuthorize("@ownership.isServiceOfferingOwner(#id)")
+    // formában (lásd ServiceOfferingController) - itt már csak a jogos módosítás fut le.
     @Transactional
     public ServiceOfferingResponse update(UUID id, UpdateServiceOfferingRequest request) {
-        AppUser currentUser = currentUserProvider.getCurrentUser();
-
-        // Ownership-check: a DB-t kérdezzük meg, tényleg a bejelentkezett user
-        // service_offering-je-e ez, mielőtt bármit módosítanánk rajta - nem elég,
-        // hogy valaki APPROVED provider, a SAJÁT erőforrására kell korlátozódnia.
-        if (!serviceOfferingRepository.existsByIdAndProvider_UserId(id, currentUser.getId())) {
-            throw new AccessDeniedException("Not the owner of this service offering");
-        }
-
         ServiceOffering offering = serviceOfferingRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Service offering not found: " + id));
 
@@ -83,12 +75,6 @@ public class ServiceOfferingService {
 
     @Transactional
     public void delete(UUID id) {
-        AppUser currentUser = currentUserProvider.getCurrentUser();
-
-        if (!serviceOfferingRepository.existsByIdAndProvider_UserId(id, currentUser.getId())) {
-            throw new AccessDeniedException("Not the owner of this service offering");
-        }
-
         serviceOfferingRepository.deleteById(id);
     }
 

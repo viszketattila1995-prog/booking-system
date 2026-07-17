@@ -27,7 +27,7 @@ public class TimeSlotController {
     }
 
     @PostMapping("/api/providers/me/service-offerings/{serviceOfferingId}/time-slots")
-    @PreAuthorize("hasRole('PROVIDER')")
+    @PreAuthorize("hasRole('PROVIDER') and @ownership.isServiceOfferingOwner(#serviceOfferingId)")
     public ResponseEntity<TimeSlotResponse> create(@PathVariable UUID serviceOfferingId,
                                                     @Valid @RequestBody CreateTimeSlotRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(timeSlotService.create(serviceOfferingId, request));
@@ -39,7 +39,7 @@ public class TimeSlotController {
     }
 
     @DeleteMapping("/api/providers/me/time-slots/{id}")
-    @PreAuthorize("hasRole('PROVIDER')")
+    @PreAuthorize("hasRole('PROVIDER') and @ownership.isTimeSlotOwner(#id)")
     public ResponseEntity<Void> cancel(@PathVariable UUID id) {
         timeSlotService.cancel(id);
         return ResponseEntity.noContent().build();

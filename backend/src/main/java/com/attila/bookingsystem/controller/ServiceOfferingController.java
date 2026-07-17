@@ -41,13 +41,13 @@ public class ServiceOfferingController {
     }
 
     @PutMapping("/api/providers/me/service-offerings/{id}")
-    @PreAuthorize("hasRole('PROVIDER')")
+    @PreAuthorize("hasRole('PROVIDER') and @ownership.isServiceOfferingOwner(#id)")
     public ServiceOfferingResponse update(@PathVariable UUID id, @Valid @RequestBody UpdateServiceOfferingRequest request) {
         return serviceOfferingService.update(id, request);
     }
 
     @DeleteMapping("/api/providers/me/service-offerings/{id}")
-    @PreAuthorize("hasRole('PROVIDER')")
+    @PreAuthorize("hasRole('PROVIDER') and @ownership.isServiceOfferingOwner(#id)")
     public ResponseEntity<Void> delete(@PathVariable UUID id) {
         serviceOfferingService.delete(id);
         return ResponseEntity.noContent().build();
