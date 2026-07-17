@@ -4,10 +4,12 @@ import com.attila.bookingsystem.domain.AppRole;
 import com.attila.bookingsystem.domain.AppUser;
 import com.attila.bookingsystem.dto.auth.AuthResponse;
 import com.attila.bookingsystem.dto.auth.LoginRequest;
+import com.attila.bookingsystem.dto.auth.RefreshTokenRequest;
 import com.attila.bookingsystem.dto.auth.RegisterRequest;
 import com.attila.bookingsystem.exception.EmailAlreadyInUseException;
 import com.attila.bookingsystem.repository.AppRoleRepository;
 import com.attila.bookingsystem.repository.AppUserRepository;
+import com.attila.bookingsystem.security.CurrentUserProvider;
 import com.attila.bookingsystem.security.JwtService;
 import com.attila.bookingsystem.config.JwtProperties;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -30,16 +32,21 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final JwtProperties jwtProperties;
+    private final RefreshTokenService refreshTokenService;
+    private final CurrentUserProvider currentUserProvider;
 
     public AuthService(AppUserRepository appUserRepository, AppRoleRepository appRoleRepository,
                         PasswordEncoder passwordEncoder, AuthenticationManager authenticationManager,
-                        JwtService jwtService, JwtProperties jwtProperties) {
+                        JwtService jwtService, JwtProperties jwtProperties, RefreshTokenService refreshTokenService,
+                        CurrentUserProvider currentUserProvider) {
         this.appUserRepository = appUserRepository;
         this.appRoleRepository = appRoleRepository;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
         this.jwtProperties = jwtProperties;
+        this.refreshTokenService = refreshTokenService;
+        this.currentUserProvider = currentUserProvider;
     }
 
     @Transactional
@@ -62,7 +69,7 @@ public class AuthService {
         return buildAuthResponse(user);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public AuthResponse login(LoginRequest request) {
         // Ha rossz az email/jelszó, ez BadCredentialsException-t dob, amit a
         // GlobalExceptionHandler egységes, user-enumeration-mentes 401-re alakít.
@@ -76,12 +83,34 @@ public class AuthService {
         return buildAuthResponse(user);
     }
 
+    @Transactional
+    public AuthResponse refresh(RefreshTokenRequest request) {
+        RefreshTokenService.RotationResult result = refreshTokenService.rotate(request.refreshToken());
+        return buildAuthResponse(result.user(), result.rawToken());
+    }
+
+    @Transactional
+    public void logout(RefreshTokenRequest request) {
+        refreshTokenService.revoke(request.refreshToken());
+    }
+
+    @Transactional
+    public void logoutAll() {
+        AppUser currentUser = currentUserProvider.getCurrentUser();
+        refreshTokenService.revokeAllForUser(currentUser.getId());
+    }
+
     private AuthResponse buildAuthResponse(AppUser user) {
+        return buildAuthResponse(user, refreshTokenService.issue(user));
+    }
+
+    private AuthResponse buildAuthResponse(AppUser user, String refreshToken) {
         List<String> roleNames = user.getRoles().stream().map(AppRole::getName).toList();
-        String token = jwtService.generateAccessToken(user.getId(), user.getEmail(), roleNames);
+        String accessToken = jwtService.generateAccessToken(user.getId(), user.getEmail(), roleNames);
 
         return new AuthResponse(
-                token,
+                accessToken,
+                refreshToken,
                 "Bearer",
                 jwtProperties.getAccessTokenExpirationMs(),
                 user.getEmail(),

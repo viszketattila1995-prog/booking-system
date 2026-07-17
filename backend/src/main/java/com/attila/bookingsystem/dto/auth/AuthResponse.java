@@ -4,6 +4,7 @@ import java.util.List;
 
 public record AuthResponse(
         String accessToken,
+        String refreshToken,
         String tokenType,
         long expiresInMs,
         String email,

@@ -70,6 +70,11 @@ public class SecurityConfig {
                 // a JWT alapján, a szerver nem tárol authentikációs állapotot kérések között.
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // /logout-all a JELENLEGI user összes refresh tokenjét vonja vissza,
+                        // ezért - a többi /api/auth/** végponttal ellentétben - érvényes
+                        // access tokent igényel. A matcher-sorrend számít: ennek meg kell
+                        // előznie az általános permitAll("/api/auth/**") szabályt.
+                        .requestMatchers("/api/auth/logout-all").authenticated()
                         .requestMatchers("/api/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
