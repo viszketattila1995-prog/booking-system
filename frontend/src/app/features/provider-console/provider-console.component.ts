@@ -1,6 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../../core/services/auth.service';
 import { ProviderConsoleService } from '../../core/services/provider-console.service';
 import { ProviderResponse } from '../../core/models/provider.models';
 import { extractErrorMessage } from '../../core/utils/api-error.util';
@@ -14,6 +15,7 @@ import { extractErrorMessage } from '../../core/utils/api-error.util';
 export class ProviderConsoleComponent {
   private readonly fb = inject(FormBuilder);
   private readonly providerConsoleService = inject(ProviderConsoleService);
+  private readonly authService = inject(AuthService);
 
   readonly loading = signal(true);
   readonly provider = signal<ProviderResponse | null>(null);
@@ -32,12 +34,25 @@ export class ProviderConsoleComponent {
       next: (provider) => {
         this.provider.set(provider);
         this.loading.set(false);
+        this.refreshSessionIfNewlyApproved(provider);
       },
       error: (error: unknown) => {
         this.loadError.set(extractErrorMessage(error, 'Could not load your provider status.'));
         this.loading.set(false);
       },
     });
+  }
+
+  // A JWT-ben lévő szerepkörök a token KIADÁSAKOR érvényes állapotot tükrözik
+  // (lásd AuthService komment) - ha valakit épp most hagyott jóvá az admin, a
+  // böngészőjében tárolt token még nem tartalmazza a ROLE_PROVIDER-t, ezért a
+  // "Manage my services" link mögötti roleGuard visszadobná, hiába APPROVED
+  // már a backend szerint. Csendben frissítjük a tokent /auth/refresh-fel
+  // (ami új JWT-t ad, friss szerepkörökkel), hogy a link tényleg működjön.
+  private refreshSessionIfNewlyApproved(provider: ProviderResponse | null): void {
+    if (provider?.status === 'APPROVED' && !this.authService.hasRole('ROLE_PROVIDER')) {
+      this.authService.refresh().subscribe({ error: () => {} });
+    }
   }
 
   submit(): void {
