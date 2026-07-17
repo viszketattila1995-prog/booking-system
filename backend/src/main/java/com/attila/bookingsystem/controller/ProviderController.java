@@ -39,6 +39,15 @@ public class ProviderController {
         return providerService.listApproved();
     }
 
+    // A bejelentkezett user saját jelentkezésének állapota. 204, ha még nem
+    // jelentkezett - ez NEM hibaállapot, csak jelzi, hogy az apply űrlapot kell mutatni.
+    @GetMapping("/api/providers/me")
+    public ResponseEntity<ProviderResponse> getMine() {
+        return providerService.findMine()
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.noContent().build());
+    }
+
     @GetMapping("/api/admin/providers/pending")
     @PreAuthorize("hasRole('ADMIN')")
     public List<ProviderResponse> listPending() {

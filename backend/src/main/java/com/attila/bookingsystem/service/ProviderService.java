@@ -21,6 +21,7 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -75,6 +76,15 @@ public class ProviderService {
         return providerRepository.findByStatus(ProviderStatus.APPROVED).stream()
                 .map(this::toResponse)
                 .toList();
+    }
+
+    // A bejelentkezett user saját provider-jelentkezésének állapota (ha van) -
+    // ebből dönti el a kliens, hogy jelentkezési űrlapot, "elbírálás alatt"
+    // üzenetet, vagy a szolgáltatás-kezelő felületet mutassa.
+    @Transactional(readOnly = true)
+    public Optional<ProviderResponse> findMine() {
+        AppUser currentUser = currentUserProvider.getCurrentUser();
+        return providerRepository.findByUserId(currentUser.getId()).map(this::toResponse);
     }
 
     @Transactional
