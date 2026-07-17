@@ -2,10 +2,26 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Frontend</title>
+  <title>Booking System</title>
   <base href="/">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <script>
+    // Beállítja a data-theme attribútumot MÉG az Angular betöltése/renderelése
+    // előtt, hogy ne villanjon fel a rossz (pl. világos) téma egy pillanatra
+    // sötét-mód-preferáló felhasználóknál. Lásd ThemeService.
+    (function () {
+      try {
+        var stored = localStorage.getItem('bs_theme');
+        var theme = stored === 'dark' || stored === 'light'
+          ? stored
+          : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'light');
+      }
+    })();
+  </script>
 </head>
 <body>
   <app-root></app-root>

@@ -16,10 +16,39 @@
   --color-danger-bg: #fdeceb;
   --color-success-bg: #e8f8ef;
   --color-success-text: #1f7a44;
+  --color-warning-bg: #fff3e0;
+  --color-warning-text: #b06a00;
   --radius: 10px;
   --radius-lg: 16px;
   --shadow: 0 1px 2px rgba(26, 27, 46, 0.06), 0 1px 1px rgba(26, 27, 46, 0.04);
   --shadow-hover: 0 12px 24px -8px rgba(26, 27, 46, 0.16);
+  --bg-glow-opacity: 10%;
+}
+
+/* data-theme="dark" a boot script-ből (index.html) vagy a ThemeService toggle-jéből
+   jön - lásd ott. Minden szín itt van felülírva, a komponens-CSS-ek sosem
+   hardcode-olnak színt közvetlenül (a badge--booked/--role kivétel volt, azokat
+   is idehoztuk változóként). */
+:root[data-theme='dark'] {
+  --color-bg: #121319;
+  --color-surface: #1b1c26;
+  --color-surface-alt: #23242f;
+  --color-border: #31323f;
+  --color-text: #eceef7;
+  --color-text-muted: #9c9eb3;
+  --color-primary: #8686ff;
+  --color-primary-hover: #a0a0ff;
+  --color-primary-soft: #2a2a4a;
+  --color-danger: #ff6b61;
+  --color-danger-bg: #3a2226;
+  --color-success-bg: #16301f;
+  --color-success-text: #6bd694;
+  --color-warning-bg: #3a2c14;
+  --color-warning-text: #e0a94d;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.5), 0 1px 1px rgba(0, 0, 0, 0.35);
+  --shadow-hover: 0 12px 28px -8px rgba(0, 0, 0, 0.6);
+  --bg-glow-opacity: 16%;
+  color-scheme: dark;
 }
 
 html,
@@ -36,7 +65,11 @@ body {
     Roboto,
     sans-serif;
   background:
-    radial-gradient(1100px 420px at 15% -10%, color-mix(in srgb, var(--color-primary) 10%, transparent), transparent),
+    radial-gradient(
+      1100px 420px at 15% -10%,
+      color-mix(in srgb, var(--color-primary) var(--bg-glow-opacity), transparent),
+      transparent
+    ),
     var(--color-bg);
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
@@ -274,8 +307,8 @@ h1 {
 }
 
 .badge--booked {
-  background: #fff3e0;
-  color: #b06a00;
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
 }
 
 .badge--cancelled {

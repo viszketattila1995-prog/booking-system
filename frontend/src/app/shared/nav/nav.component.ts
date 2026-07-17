@@ -1,6 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/services/auth.service';
+import { ThemeService } from '../../core/services/theme.service';
 
 @Component({
   selector: 'app-nav',
@@ -11,7 +12,9 @@ import { AuthService } from '../../core/services/auth.service';
 export class NavComponent {
   private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly themeService = inject(ThemeService);
 
+  readonly theme = this.themeService.theme;
   readonly isAuthenticated = this.authService.isAuthenticated;
   readonly currentUser = this.authService.currentUser;
   readonly isProvider = computed(() => this.authService.hasRole('ROLE_PROVIDER'));
@@ -30,5 +33,9 @@ export class NavComponent {
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  toggleTheme(): void {
+    this.themeService.toggle();
   }
 }
